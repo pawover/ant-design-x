@@ -123,15 +123,18 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
   // switching to `<Section>` at the boundary would change the element type
   // under the root, so React would remount the whole first section (and with
   // `enableAnimation`, fade its text in again).
-  const sectionList = sections ?? (streaming?.incremental ? [output] : null);
+  const incremental = !!streaming?.incremental;
+  const sectionList: string[] | null = sections ?? (incremental ? [output] : null);
 
   const htmlString = useMemo(() => {
-    if (!output || sectionList) {
+    // `sections` is non-null only while incremental is on, so `incremental`
+    // alone already covers the "rendered as sections" case.
+    if (!output || sections || incremental) {
       return '';
     }
 
     return parser.parse(output, { injectTail: !!shouldShowTail });
-  }, [output, sectionList, parser, shouldShowTail]);
+  }, [output, sections, incremental, parser, shouldShowTail]);
 
   const renderedContent = useMemo(
     () => (htmlString ? renderer.render(htmlString) : null),
