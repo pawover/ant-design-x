@@ -90,7 +90,8 @@ type CustomContentType {
 
 ```typescript
 type BubbleSlot<ContentType> =
-  React.ReactNode | ((content: ContentType, info: InfoType) => React.ReactNode);
+  | React.ReactNode
+  | ((content: ContentType, info: InfoType) => React.ReactNode);
 ```
 
 #### EditableBubbleOption
@@ -206,14 +207,14 @@ export type FuncRoleProps<T extends BubbleContentType = any> = (
   data: BubbleItemType<T>,
 ) => RoleProps<T>;
 
-export type DividerRoleProps<T extends BubbleContentType = any> = Partial<DividerBubbleProps<T>>;
+export type DividerRoleProps = Partial<DividerBubbleProps>;
 export type FuncDividerRoleProps<T extends BubbleContentType = any> = (
   data: BubbleItemType<T>,
-) => DividerRoleProps<T>;
+) => DividerRoleProps;
 
 export type RoleType<T extends BubbleContentType = any> = Partial<
   Record<Exclude<RemainRole, 'divider'>, RoleProps<T> | FuncRoleProps<T>>
-> & { divider?: DividerRoleProps<T> | FuncDividerRoleProps<T> } & Record<
+> & { divider?: DividerRoleProps | FuncDividerRoleProps<T> } & Record<
     string,
     RoleProps<T> | FuncRoleProps<T>
   >;

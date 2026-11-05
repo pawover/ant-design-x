@@ -26,7 +26,5 @@ const config: XChatConfig<Row, BubbleRow> = {
   parser: (message) => ({ text: message.query }),
 };
 
-it('type', () => {});
-
 export type { SimpleType };
 export { config, single, withExtra };

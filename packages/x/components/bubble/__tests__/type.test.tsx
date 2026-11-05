@@ -28,7 +28,14 @@ const renderMixedList = () => (
       ai: (data) => ({
         contentRender: () => {
           const content = data.content;
-          return <span>{typeof content === 'string' ? content : content.query}</span>;
+          // @ts-expect-error data.content 收窄为 Row | string，不能是 any
+          const illegal: number = data.content;
+          return (
+            <span>
+              {typeof content === 'string' ? content : content.query}
+              {illegal}
+            </span>
+          );
         },
       }),
     }}
