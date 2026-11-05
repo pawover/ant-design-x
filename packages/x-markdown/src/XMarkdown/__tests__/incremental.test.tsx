@@ -333,7 +333,10 @@ describe('streaming.incremental', () => {
     });
 
     it('splits on a heading directly after a paragraph line (a heading interrupts a paragraph)', () => {
-      expect(sectionsFor('# A\n\npara\n## B\n\nmore\n\n')).toEqual(['# A\n\npara\n', '## B\n\nmore\n\n']);
+      expect(sectionsFor('# A\n\npara\n## B\n\nmore\n\n')).toEqual([
+        '# A\n\npara\n',
+        '## B\n\nmore\n\n',
+      ]);
     });
 
     it('does not split on an indented heading or a setext heading', () => {
@@ -438,9 +441,16 @@ describe('streaming.incremental', () => {
 
   describe('work skipped for finished sections', () => {
     const doc = Array.from({ length: 6 }, (_, i) =>
-      [`## Section ${i}`, '', `Paragraph ${i}.`, '', '```js', `const s${i} = ${i};`, '```', ''].join(
-        '\n',
-      ),
+      [
+        `## Section ${i}`,
+        '',
+        `Paragraph ${i}.`,
+        '',
+        '```js',
+        `const s${i} = ${i};`,
+        '```',
+        '',
+      ].join('\n'),
     ).join('\n');
 
     const streamIn = (incremental: boolean, onRender: (children: string) => void) => {
@@ -534,6 +544,51 @@ describe('streaming.incremental', () => {
       expect(mounts).toBe(6);
       const plain = render(<XMarkdown content={doc} components={{ code }} />);
       expect(container.innerHTML).toBe(plain.container.innerHTML);
+    });
+  });
+
+  describe('the first boundary', () => {
+    it('keeps the first section mounted when the first boundary appears', () => {
+      let mounts = 0;
+      const strong = ({ children }: ComponentProps) => {
+        useEffect(() => {
+          mounts += 1;
+        }, []);
+        return <strong data-test="custom">{children}</strong>;
+      };
+      // Stable identities: every memo downstream keys on them.
+      const components = { strong };
+      const streaming = {
+        hasNextChunk: true,
+        incremental: { minSectionChars: 0 },
+        enableAnimation: true,
+      };
+      const first = 'Alpha paragraph. **bold**';
+      const withBoundary = `${first}\n\n## Beta\n\nBeta paragraph.`;
+
+      const { container, rerender } = render(
+        <XMarkdown content={first} streaming={streaming} components={components} />,
+      );
+      // No boundary yet: the paragraph is the only child of the root element.
+      const firstP = container.querySelector('p')!;
+      const firstSpan = firstP.querySelector('span')!;
+      expect(firstSpan.textContent).toBe('Alpha paragraph. ');
+      expect(mounts).toBe(1);
+
+      act(() => {
+        rerender(
+          <XMarkdown content={withBoundary} streaming={streaming} components={components} />,
+        );
+      });
+
+      // The first paragraph is now its own section: it must be the very same
+      // DOM node, and its text must not fade in again.
+      const paragraphs = container.querySelectorAll('p');
+      expect(paragraphs).toHaveLength(2);
+      expect(paragraphs[0]).toBe(firstP);
+      expect(firstP.isConnected).toBe(true);
+      expect(firstP.querySelector('span')).toBe(firstSpan);
+      expect(mounts).toBe(1);
     });
   });
 });
