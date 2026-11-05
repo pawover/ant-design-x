@@ -117,13 +117,24 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
     [mergedComponents, componentsProps, dompurifyConfig, enableAnimation, animationConfig],
   );
 
+  // With incremental rendering on, the output always goes through `Section`,
+  // even before the first boundary exists: the whole output is then the first,
+  // still-growing section. Rendering it as a bare `renderer.render()` first and
+  // switching to `<Section>` at the boundary would change the element type
+  // under the root, so React would remount the whole first section (and with
+  // `enableAnimation`, fade its text in again).
+  const incremental = !!streaming?.incremental;
+  const sectionList: string[] | null = sections ?? (incremental ? [output] : null);
+
   const htmlString = useMemo(() => {
-    if (!output || sections) {
+    // `sections` is non-null only while incremental is on, so `incremental`
+    // alone already covers the "rendered as sections" case.
+    if (!output || sections || incremental) {
       return '';
     }
 
     return parser.parse(output, { injectTail: !!shouldShowTail });
-  }, [output, sections, parser, shouldShowTail]);
+  }, [output, sections, incremental, parser, shouldShowTail]);
 
   const renderedContent = useMemo(
     () => (htmlString ? renderer.render(htmlString) : null),
@@ -136,15 +147,15 @@ const XMarkdown: React.FC<XMarkdownProps> = React.memo((props) => {
 
   // Sections are rendered as siblings inside the same root element, so the
   // DOM is identical to the whole-document render; only the React tree differs.
-  const sectionedContent = sections
-    ? sections.map((section, index) => (
+  const sectionedContent = sectionList
+    ? sectionList.map((section, index) => (
         <Section
           // Sections are positional: section N is stable once section N+1 exists.
           key={index}
           content={section}
           parser={parser}
           renderer={renderer}
-          injectTail={!!shouldShowTail && index === sections.length - 1}
+          injectTail={!!shouldShowTail && index === sectionList.length - 1}
         />
       ))
     : null;
