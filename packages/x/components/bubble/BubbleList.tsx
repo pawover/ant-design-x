@@ -9,6 +9,7 @@ import { BubbleContext } from './context';
 import DividerBubble from './Divider';
 import { useCompatibleScroll } from './hooks/useCompatibleScroll';
 import {
+  BubbleContentType,
   BubbleItemType,
   BubbleListProps,
   BubbleListRef,
@@ -241,10 +242,20 @@ const BubbleList: React.ForwardRefRenderFunction<BubbleListRef, BubbleListProps>
   );
 };
 
+// 泛型签名使 JSX 调用可从 items 推断 content 类型 T；
+// 末尾的 BubbleListProps<any> 兜底重载供 GetProp / GetRef 推断出 RoleType<any> 与 BubbleListRef；
+// as 仅用于把 forwardRef 的返回类型替换为上述重载类型，运行时不变。
+type ForwardBubbleListType = {
+  <T extends BubbleContentType = any>(
+    props: BubbleListProps<T> & { ref?: React.Ref<BubbleListRef> },
+  ): React.ReactElement;
+  (props: BubbleListProps<any> & { ref?: React.Ref<BubbleListRef> }): React.ReactElement;
+};
+
 const ForwardBubbleList = React.forwardRef(BubbleList);
 
 if (process.env.NODE_ENV !== 'production') {
   ForwardBubbleList.displayName = 'BubbleList';
 }
 
-export default ForwardBubbleList;
+export default ForwardBubbleList as ForwardBubbleListType;
