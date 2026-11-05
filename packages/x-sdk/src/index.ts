@@ -4,7 +4,13 @@ export type {
   XModelParams,
   XModelResponse,
 } from './chat-providers/types/model';
-export type { DefaultMessageInfo, MessageInfo } from './x-chat';
+export type {
+  DefaultMessageInfo,
+  MessageInfo,
+  MessageStatus,
+  SimpleType,
+  XChatConfig,
+} from './x-chat';
 export { default as useXChat } from './x-chat';
 export type { ConversationData } from './x-conversations';
 export { default as useXConversations } from './x-conversations';

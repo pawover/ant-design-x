@@ -25,9 +25,9 @@ type RequestPlaceholderFn<Input, Message> = (
   info: { messages: Message[] },
 ) => Message;
 
-type RequestFallbackFn<Input, MessageInfo, Message> = (
+type RequestFallbackFn<Input, Info, Message> = (
   requestParams: Partial<Input>,
-  info: { error: Error; errorInfo?: any; messages: Message[]; messageInfo: MessageInfo },
+  info: { error: Error; errorInfo?: any; messages: Message[]; messageInfo: Info },
 ) => Message | Promise<Message>;
 
 export type RequestParams<Message> = {
@@ -54,15 +54,18 @@ export interface XChatConfig<
   requestFallback?: ChatMessage | RequestFallbackFn<Input, MessageInfo<ChatMessage>, ChatMessage>;
 }
 
-export interface MessageInfo<Message extends SimpleType> {
+export interface MessageInfo<Message extends SimpleType, ExtraInfo = AnyObject> {
   id: number | string;
   message: Message;
   status: MessageStatus;
-  extraInfo?: AnyObject;
+  extraInfo?: ExtraInfo;
 }
 
-export type DefaultMessageInfo<Message extends SimpleType> = Pick<MessageInfo<Message>, 'message'> &
-  Partial<Omit<MessageInfo<Message>, 'message'>>;
+export type DefaultMessageInfo<Message extends SimpleType, ExtraInfo = AnyObject> = Pick<
+  MessageInfo<Message, ExtraInfo>,
+  'message'
+> &
+  Partial<Omit<MessageInfo<Message, ExtraInfo>, 'message'>>;
 
 export type RequestResultObject<Message> = {
   message: Message | Message[];
