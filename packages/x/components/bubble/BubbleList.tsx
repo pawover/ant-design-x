@@ -9,6 +9,7 @@ import { BubbleContext } from './context';
 import DividerBubble from './Divider';
 import { useCompatibleScroll } from './hooks/useCompatibleScroll';
 import {
+  BubbleContentType,
   BubbleItemType,
   BubbleListProps,
   BubbleListRef,
@@ -241,10 +242,17 @@ const BubbleList: React.ForwardRefRenderFunction<BubbleListRef, BubbleListProps>
   );
 };
 
+type ForwardBubbleListType = {
+  <T extends BubbleContentType = any>(
+    props: BubbleListProps<T> & { ref?: React.Ref<BubbleListRef> },
+  ): React.ReactElement;
+  (props: BubbleListProps<any> & { ref?: React.Ref<BubbleListRef> }): React.ReactElement;
+};
+
 const ForwardBubbleList = React.forwardRef(BubbleList);
 
 if (process.env.NODE_ENV !== 'production') {
   ForwardBubbleList.displayName = 'BubbleList';
 }
 
-export default ForwardBubbleList;
+export default ForwardBubbleList as ForwardBubbleListType;

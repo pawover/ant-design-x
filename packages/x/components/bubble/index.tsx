@@ -4,11 +4,17 @@ import Divider from './Divider';
 import System from './System';
 
 export type {
+  BubbleContentType,
   BubbleItemType,
   BubbleListProps,
   BubbleListRef,
   BubbleProps,
   BubbleRef,
+  DividerRoleProps,
+  FuncDividerRoleProps,
+  FuncRoleProps,
+  RoleProps,
+  RoleType,
 } from './interface';
 
 type BubbleType = typeof Bubble & {

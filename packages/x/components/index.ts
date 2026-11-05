@@ -4,7 +4,17 @@ export type { ActionsItemProps } from './actions/ActionsItem';
 export type { ActionsProps } from './actions/interface';
 export type { AttachmentsProps } from './attachments';
 export { default as Attachments } from './attachments';
-export type { BubbleItemType, BubbleListProps, BubbleProps } from './bubble';
+export type {
+  BubbleContentType,
+  BubbleItemType,
+  BubbleListProps,
+  BubbleProps,
+  DividerRoleProps,
+  FuncDividerRoleProps,
+  FuncRoleProps,
+  RoleProps,
+  RoleType,
+} from './bubble';
 export { default as Bubble } from './bubble';
 export type { CodeHighlighterProps } from './code-highlighter';
 export { default as CodeHighlighter } from './code-highlighter';

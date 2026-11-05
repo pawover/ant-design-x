@@ -190,8 +190,11 @@ type RemainRole = 'ai' | 'system' | 'user' | 'divider';
 
 type AnyStr = string;
 
-export type BubbleItemType = (Omit<BubbleProps<any>, 'styles' | 'classNames'> &
-  Omit<DividerBubbleProps<any>, 'styles' | 'classNames'>) & {
+export type BubbleItemType<T extends BubbleContentType = any> = (Omit<
+  BubbleProps<T>,
+  'styles' | 'classNames'
+> &
+  Omit<DividerBubbleProps<T>, 'styles' | 'classNames'>) & {
   /**
    * @description 数据项唯一标识
    */
@@ -206,8 +209,8 @@ export type BubbleItemType = (Omit<BubbleProps<any>, 'styles' | 'classNames'> &
   classNames?: Partial<Record<SemanticType, string>>;
 };
 
-export type RoleProps = Pick<
-  BubbleProps<any>,
+export type RoleProps<T extends BubbleContentType = any> = Pick<
+  BubbleProps<T>,
   | 'typing'
   | 'variant'
   | 'shape'
@@ -231,26 +234,31 @@ export type RoleProps = Pick<
   | 'onEditConfirm'
   | 'onEditCancel'
 >;
-export type FuncRoleProps = (data: BubbleItemType) => RoleProps;
+export type FuncRoleProps<T extends BubbleContentType = any> = (
+  data: BubbleItemType<T>,
+) => RoleProps<T>;
 
-export type DividerRoleProps = Partial<DividerBubbleProps>;
-export type FuncDividerRoleProps = (data: BubbleItemType) => DividerRoleProps;
+export type DividerRoleProps<T extends BubbleContentType = any> = Partial<DividerBubbleProps<T>>;
+export type FuncDividerRoleProps<T extends BubbleContentType = any> = (
+  data: BubbleItemType<T>,
+) => DividerRoleProps<T>;
 
-export type RoleType = Partial<
-  Record<Exclude<RemainRole, 'divider'>, RoleProps | FuncRoleProps>
-> & { divider?: DividerRoleProps | FuncDividerRoleProps } & Record<
+export type RoleType<T extends BubbleContentType = any> = Partial<
+  Record<Exclude<RemainRole, 'divider'>, RoleProps<T> | FuncRoleProps<T>>
+> & { divider?: DividerRoleProps<T> | FuncDividerRoleProps<T> } & Record<
     AnyStr,
-    RoleProps | FuncRoleProps
+    RoleProps<T> | FuncRoleProps<T>
   >;
-export interface BubbleListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'role'> {
+export interface BubbleListProps<T extends BubbleContentType = any>
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'role'> {
   prefixCls?: string;
   styles?: Partial<Record<ListSemanticType, React.CSSProperties>>;
   classNames?: Partial<Record<ListSemanticType, string>>;
   rootClassName?: string;
-  items: BubbleItemType[];
+  items: BubbleItemType<T>[];
   autoScroll?: boolean;
   /**
    * @description 数据类别基础配置项，优先级低，会被 items 配置覆盖。默认 ai、system、user、divider 四类，允许自定义类别
    */
-  role?: RoleType;
+  role?: RoleType<T>;
 }
